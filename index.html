@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Petualangan Bakteri – Kuis Interaktif</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef6f0;--surf:#fff;--ink:#17332b;--mute:#4d6b61;--line:#cfe2d6;--main:#1f7a5c;--mainink:#fff;--ok:#1f8a4c;--okbg:#dff3e5;--no:#b4531f;--nobg:#fdeadb;--sun:#f2b632;
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1f1a;--surf:#183028;--ink:#e8f4ee;--mute:#a5c2b6;--line:#2c4a3f;--main:#4fc79b;--mainink:#07241a;--ok:#6fdc9a;--okbg:#1d4a33;--no:#ffa66b;--nobg:#4a2e1a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1f1a;--surf:#183028;--ink:#e8f4ee;--mute:#a5c2b6;--line:#2c4a3f;--main:#4fc79b;--mainink:#07241a;--ok:#6fdc9a;--okbg:#1d4a33;--no:#ffa66b;--nobg:#4a2e1a;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 clamp(18px,2.6vw,22px)/1.5 Nunito,"Segoe UI",system-ui,sans-serif;min-height:100vh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.wrap{max-width:720px;margin:0 auto;padding:14px 16px 40px}
+header.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.brand{font-weight:900;font-size:1rem;color:var(--main)}
+.tools{display:flex;gap:8px}
+.ic{border:2px solid var(--line);background:var(--surf);color:var(--ink);border-radius:12px;min-width:48px;min-height:48px;font-size:1.2rem;cursor:pointer}
+.ic[aria-pressed="true"]{border-color:var(--main);background:var(--okbg)}
+button:focus-visible{outline:4px solid var(--sun);outline-offset:2px}
+.card{background:var(--surf);border:2px solid var(--line);border-radius:24px;padding:22px 18px;text-align:center}
+h1{font-size:clamp(1.8rem,6vw,2.6rem);line-height:1.15;margin:.2em 0 .4em;font-weight:900}
+h2{font-size:clamp(1.4rem,4.5vw,1.9rem);line-height:1.3;margin:.3em 0 .6em;font-weight:900}
+p{margin:.4em 0}.mute{color:var(--mute);font-size:.9em}
+.big{font-size:clamp(4rem,18vw,6.5rem);line-height:1.1;margin:.1em 0}
+.btn{display:block;width:100%;min-height:64px;margin-top:12px;padding:12px 18px;border-radius:18px;border:3px solid var(--line);background:var(--surf);color:var(--ink);font:900 1.25rem Nunito,system-ui,sans-serif;cursor:pointer}
+.btn.pri{background:var(--main);border-color:var(--main);color:var(--mainink)}
+.btn:not(:disabled):hover{border-color:var(--main)}
+.btn.ok{background:var(--okbg);border-color:var(--ok)}
+.btn.no{background:var(--nobg);border-color:var(--no)}
+.btn:disabled{cursor:default}
+.opts{display:grid;gap:0 12px;grid-template-columns:1fr}
+@media(min-width:560px){.opts{grid-template-columns:1fr 1fr}}
+.prog{display:flex;gap:6px;margin:0 0 12px}
+.prog i{flex:1;height:12px;border-radius:8px;background:var(--line)}
+.prog i.on{background:var(--main)}.prog i.cur{background:var(--sun)}
+.fb{min-height:0;margin-top:14px;padding:14px;border-radius:16px;font-weight:700;text-align:left}
+.fb.ok{background:var(--okbg);border:2px solid var(--ok)}.fb.no{background:var(--nobg);border:2px solid var(--no)}
+.fb[hidden]{display:none}
+.row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px}
+.row .btn{width:auto;flex:1 1 140px}
+.score{font-size:clamp(3.4rem,16vw,5.5rem);font-weight:900;color:var(--main);line-height:1}
+.stars{font-size:2.2rem;letter-spacing:6px}
+.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+.dots{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;font-size:1.5rem}
+.ref-item{text-align:left;margin-top:18px}.ref-item b{display:block;margin-bottom:6px}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.chips .btn{margin:0;min-height:76px;font-size:1.1rem}
+.chips .btn.sel{background:var(--okbg);border-color:var(--ok)}
+.foot{margin-top:22px;text-align:center;color:var(--mute);font-size:.8em}
+@media(prefers-reduced-motion:reduce){.pop{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <header class="bar">
+  <div class="brand">🔬 Petualangan Bakteri</div>
+  <div class="tools">
+   <button class="ic" id="tRead" aria-pressed="false" aria-label="Bacakan soal dengan suara" title="Bacakan soal">🔊</button>
+   <button class="ic" id="tTheme" aria-label="Ganti tema terang atau gelap" title="Terang/Gelap">🌓</button>
+  </div>
+ </header>
+ <main id="app" aria-live="polite"></main>
+ <p class="foot">Dikembangkan oleh Suchiana B, M.Pd<br>SMAN 2 Palangka Raya</p>
+</div>
+<script>
+var Q=[
+{v:"🔬",q:"Bakteri tidak punya … (inti sel bermembran)",o:["Inti sel","Dinding sel"],a:0,e:"Bakteri tidak punya inti sel bermembran. Materi genetiknya bebas di dalam sel."},
+{v:"🏊",q:"Bagian bakteri untuk bergerak adalah …",o:["Flagela","Ribosom"],a:0,e:"Flagela seperti ekor kecil yang membantu bakteri berenang."},
+{v:"⚪ ▬",q:"Bakteri bulat disebut …",o:["Kokus ⚪","Basil ▬"],a:0,e:"Kokus berbentuk bulat. Basil berbentuk batang."},
+{v:"🍈",q:"Tempoyak dibuat dengan bantuan bakteri …",o:["Lactobacillus","Salmonella"],a:0,e:"Tempoyak adalah durian yang difermentasi bakteri Lactobacillus. Bakteri ini bermanfaat."},
+{v:"✂️",q:"Bakteri berkembang biak dengan cara …",o:["Membelah diri","Bertelur"],a:0,e:"Satu sel bakteri membelah menjadi dua sel."},
+{v:"dots",q:"1 bakteri membelah → 2 → 4 → …",o:["6","8"],a:1,e:"Setiap kali membelah, jumlahnya dua kali lipat: 4 × 2 = 8."},
+{v:"💧",q:"Air sungai yang tercemar bakteri dapat menyebabkan …",o:["Diare","Rambut rontok"],a:0,e:"Air yang tercemar bakteri bisa membuat perut sakit atau diare."},
+{v:"🌱",q:"Bakteri Rhizobium membantu tanaman kacang menjadi subur. Rhizobium termasuk bakteri …",o:["Teman 😊","Lawan 😠"],a:0,e:"Rhizobium adalah bakteri teman. Ia membantu tanaman kacang mendapat nitrogen."}
+];
+var R=[
+{t:"Hari ini belajarku …",c:["😀 Seru","😐 Biasa","😕 Sulit"]},
+{t:"Aku paham bahwa bakteri ada yang baik dan ada yang jahat",c:["👍 Paham","🤔 Masih bingung"]},
+{t:"Satu kebiasaan sehat yang akan aku lakukan:",c:["🧼 Cuci tangan","💧 Minum air matang","🍽️ Makan makanan bersih"]}
+];
+var app=document.getElementById("app"),S={i:0,score:0,done:false,ans:[],ref:[null,null,null],read:false};
+var root=document.documentElement;
+function el(h){var d=document.createElement("div");d.innerHTML=h;return d.firstElementChild}
+function speak(t){if(!S.read||!window.speechSynthesis)return;try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t.replace(/[⚪▬😊😠]/g,""));u.lang="id-ID";u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function prog(){var h='<div class="prog" role="img" aria-label="Soal '+(S.i+1)+' dari '+Q.length+'">';for(var k=0;k<Q.length;k++)h+='<i class="'+(k<S.i?'on':k==S.i?'cur':'')+'"></i>';return h+'</div>'}
+function start(){
+ app.innerHTML='<section class="card"><div class="big" aria-hidden="true">🦠</div><h1>Yuk, kenalan dengan bakteri!</h1><p>8 soal singkat. Satu soal di tiap layar.</p><p class="mute">Tidak ada batas waktu. Kamu boleh membaca pelan-pelan. Tombol 🔊 bisa membacakan soal.</p><button class="btn pri" id="go">Mulai</button></section>';
+ document.getElementById("go").onclick=function(){S.i=0;S.score=0;S.ans=[];question()};
+}
+function question(){
+ var d=Q[S.i];
+ var vis=d.v=="dots"?'<div class="dots" aria-hidden="true"><span>🦠</span><span>→</span><span>🦠🦠</span><span>→</span><span>🦠🦠🦠🦠</span><span>→</span><span>❓</span></div>':'<div class="big" aria-hidden="true">'+d.v+'</div>';
+ var idx=shuffle(d.o.map(function(_,k){return k}));
+ var h=prog()+'<section class="card">'+vis+'<h2>'+d.q+'</h2><div class="opts">';
+ idx.forEach(function(k){h+='<button class="btn" data-k="'+k+'">'+d.o[k]+'</button>'});
+ h+='</div><div class="fb" id="fb" hidden></div><button class="btn pri" id="nx" hidden>'+(S.i==Q.length-1?"Lihat hasilku":"Soal berikutnya")+'</button></section>';
+ app.innerHTML=h;window.scrollTo(0,0);speak(d.q);
+ var bs=app.querySelectorAll(".opts .btn");
+ bs.forEach(function(b){b.onclick=function(){
+  var k=+b.dataset.k,right=k==d.a;
+  bs.forEach(function(x){x.disabled=true;if(+x.dataset.k==d.a)x.classList.add("ok")});
+  if(!right)b.classList.add("no");
+  if(right){S.score++;b.classList.add("pop")}
+  S.ans[S.i]=right;
+  var fb=document.getElementById("fb");fb.hidden=false;fb.className="fb "+(right?"ok":"no");
+  fb.textContent=(right?"✅ Benar! Hebat! ":"💪 Belum tepat, tidak apa-apa. Jawaban yang benar: "+d.o[d.a]+". ")+d.e;
+  speak(fb.textContent.replace(/[✅💪]/g,""));
+  var nx=document.getElementById("nx");nx.hidden=false;nx.focus();
+  nx.onclick=function(){if(S.i<Q.length-1){S.i++;question()}else result()};
+ }});
+}
+function result(){
+ var pts=S.score*12.5,m=pts>=87.5?"Luar biasa! Kamu sudah paham sekali.":pts>=62.5?"Bagus! Sedikit lagi kamu mahir.":"Terima kasih sudah berusaha. Ayo coba lagi, kamu pasti makin baik.";
+ var st="";for(var k=0;k<Q.length;k++)st+=S.ans[k]?"⭐":"☆";
+ app.innerHTML='<section class="card"><div class="big" aria-hidden="true">🏆</div><h2>Hasilku</h2><div class="score pop">'+pts+'</div><p class="mute">dari 100 poin (benar '+S.score+' dari 8)</p><div class="stars" aria-hidden="true">'+st+'</div><p>'+m+'</p><div class="row"><button class="btn pri" id="rf">Isi refleksi</button><button class="btn" id="again">Main lagi</button></div></section>';
+ window.scrollTo(0,0);speak("Skor kamu "+pts+". "+m);
+ document.getElementById("rf").onclick=reflect;document.getElementById("again").onclick=start;
+}
+function reflect(){
+ var h='<section class="card"><div class="big" aria-hidden="true">💭</div><h2>Refleksiku</h2>';
+ R.forEach(function(r,n){h+='<div class="ref-item"><b>'+r.t+'</b><div class="chips">';r.c.forEach(function(c,k){h+='<button class="btn'+(S.ref[n]===k?' sel':'')+'" data-n="'+n+'" data-k="'+k+'" aria-pressed="'+(S.ref[n]===k)+'">'+c+'</button>'});h+='</div></div>'});
+ h+='<button class="btn pri" id="fin">Selesai</button></section>';
+ app.innerHTML=h;window.scrollTo(0,0);
+ app.querySelectorAll(".chips .btn").forEach(function(b){b.onclick=function(){
+  var n=+b.dataset.n;S.ref[n]=+b.dataset.k;
+  app.querySelectorAll('[data-n="'+n+'"]').forEach(function(x){var on=+x.dataset.k===S.ref[n];x.classList.toggle("sel",on);x.setAttribute("aria-pressed",on)});
+ }});
+ document.getElementById("fin").onclick=finish;
+}
+function finish(){
+ var h='<section class="card"><div class="big" aria-hidden="true">🎉</div><h1>Kerja bagus!</h1><p>Kamu sudah menyelesaikan petualangan bakteri.</p>';
+ var any=S.ref.some(function(x){return x!==null});
+ if(any){h+='<div class="ref-item"><b>Kartu refleksiku</b>';R.forEach(function(r,n){if(S.ref[n]!==null)h+='<p>'+r.c[S.ref[n]]+'</p>'});h+='</div>'}
+ h+='<div class="row"><button class="btn pri" id="again">Main lagi</button></div></section>';
+ app.innerHTML=h;window.scrollTo(0,0);S.ref=[null,null,null];
+ document.getElementById("again").onclick=start;
+}
+var tr=document.getElementById("tRead");
+tr.onclick=function(){S.read=!S.read;tr.setAttribute("aria-pressed",S.read);if(!S.read&&window.speechSynthesis)speechSynthesis.cancel();else speak("Suara dinyalakan")};
+document.getElementById("tTheme").onclick=function(){
+ var dark=root.getAttribute("data-theme")?root.getAttribute("data-theme")=="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+ root.setAttribute("data-theme",dark?"light":"dark");
+};
+start();
+</script>
+</body>
+</html>
